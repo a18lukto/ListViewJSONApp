@@ -46,9 +46,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Lägger till berg 3st
-        lukasBerg.add(new Mountain("Matterhorn", "Alps",4478));
-        lukasBerg.add(new Mountain("Mont Blanc", "Alps", 4808));
-        lukasBerg.add(new Mountain("Denali", "Alaska", 6190));
+        //lukasBerg.add(new Mountain("Matterhorn", "Alps",4478));
+        //lukasBerg.add(new Mountain("Mont Blanc", "Alps", 4808));
+        //lukasBerg.add(new Mountain("Denali", "Alaska", 6190));
 
 
         ArrayAdapter<Mountain> adapter=new ArrayAdapter<Mountain>(this,R.layout.list_item_textview,R.id.my_item_textview, lukasBerg);
@@ -164,8 +164,17 @@ public class MainActivity extends AppCompatActivity {
                     int mountHeight = mount.getInt("size");
                     Log.d("a18lukto", mountName+" "+mountLocation+" "+mountHeight);
 
+                    lukasBerg.add(new Mountain(mountName,mountLocation,mountHeight));
+
+
 
                 }
+
+                ArrayAdapter<Mountain> adapter=new ArrayAdapter<Mountain>(getApplicationContext(),R.layout.list_item_textview,R.id.my_item_textview, lukasBerg);
+
+                ListView my_listView=(ListView) findViewById(R.id.my_listview);
+
+                my_listView.setAdapter(adapter);
 
 
             } catch (JSONException e) {
