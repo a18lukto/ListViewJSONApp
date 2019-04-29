@@ -1,9 +1,20 @@
 package com.example.brom.listviewjsonapp;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 // Create a new class, Mountain, that can hold your JSON data
@@ -26,13 +38,44 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ArrayList<Mountain> lukasBerg=new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Lägger till berg 3st
+        lukasBerg.add(new Mountain("Matterhorn", "Alps",4478));
+        lukasBerg.add(new Mountain("Mont Blanc", "Alps", 4808));
+        lukasBerg.add(new Mountain("Denali", "Alaska", 6190));
+
+
+        ArrayAdapter<Mountain> adapter=new ArrayAdapter<Mountain>(this,R.layout.list_item_textview,R.id.my_item_textview, lukasBerg);
+
+        ListView my_listView=(ListView) findViewById(R.id.my_listview);
+
+        my_listView.setAdapter(adapter);
+
+
+
+       my_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+                Toast.makeText(getApplicationContext(),lukasBerg.get(position).info(),Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+        new FetchData().execute();
     }
 
+
+
     private class FetchData extends AsyncTask<Void,Void,String>{
+
+
         @Override
         protected String doInBackground(Void... params) {
             // These two variables need to be declared outside the try/catch
@@ -44,8 +87,10 @@ public class MainActivity extends AppCompatActivity {
             String jsonStr = null;
 
             try {
+
+
                 // Construct the URL for the Internet service
-                URL url = new URL("_ENTER_THE_URL_TO_THE_PHP_SERVICE_SERVING_JSON_HERE_");
+                URL url = new URL("http://wwwlab.iit.his.se/brom/kurser/mobilprog/dbservice/admin/getdataasjson.php?type=brom");
 
                 // Create the request to the PHP-service, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -96,11 +141,36 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String o) {
             super.onPostExecute(o);
+
+            Log.d("Mountain",o);
             // This code executes after we have received our data. The String object o holds
             // the un-parsed JSON string or is null if we had an IOException during the fetch.
 
             // Implement a parsing code that loops through the entire JSON and creates objects
             // of our newly created Mountain class.
+
+            try {
+
+
+                JSONArray jsonMountain = new JSONArray(o);
+                Log.d("Mountain",jsonMountain.get(0).toString());
+                //JSONObject obj = jsonMountain.getJSONObject(0);
+                //Log.d("Mountian",obj.getString("ID"));
+
+                for (int i = 0; i < jsonMountain.length(); i++) {
+                    JSONObject mount = jsonMountain.getJSONObject(i);
+                    String mountName = mount.getString("name");
+                    String mountLocation = mount.getString("location");
+                    int mountHeight = mount.getInt("size");
+                    Log.d("a18lukto", mountName+" "+mountLocation+" "+mountHeight);
+
+
+                }
+
+
+            } catch (JSONException e) {
+                Log.e("brom","E:"+e.getMessage());
+            }
         }
     }
 }
